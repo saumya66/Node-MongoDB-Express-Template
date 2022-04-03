@@ -2,14 +2,15 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
-
+import bcrypt from "bcryptjs";
 import upload from "./utis/multer.js";
 import cloudinary from "./utis/cloudinary.js"
+import jwt from "jsonwebtoken"
 // const cloudinary = require("./utis/cloudinary")
 
 import {TodoModel} from './models/todo.js'
-console.log(TodoModel)
-console.log(mongoose.model('TodoModel'))
+import {UserModel} from './models/user.js'
+
 dotenv.config();
 
 const app = express();
@@ -34,8 +35,65 @@ app.post('/api/upload',  upload.single('image'),async(req, res) => {
     }
 })
 
-// app.listen(PORT, () => console.log(`Server is listening on port ${PORT}.`));
+app.post('/api/create', async(req, res) => {
+    const record = req.body
+    console.log(record)
+    const resp =await TodoModel.create(record)
+    console.log(resp)
+    res.json({status : 'cool'})
+})
 
+// app.listen(PORT, () => console.log(`Server is listening on port ${PORT}.`));
+const JWT_SECRET = "asdlfjsf3402394pw[ia['03w-2343k;sdlfkg"
+app.post('/api/change-pass',async(req, res) => {
+    const {token,newPassword} = req.body
+    try {
+        const user =  jwt.verify(token,JWT_SECRET)
+        console.log(user)
+        const _id = user.id
+        const hashedPassword = await bcrypt.hash(newPassword,10)
+        await UserModel.updateOne({_id},{$set:{password:hashedPassword}})
+        res.json({message: "cool"})
+    }
+    catch (err) {
+        res.json({message: "Failed"})
+    }
+})
+app.post('/api/login',async(req, res)=>{
+    try
+    {
+        const {username, password} = req.body;
+        const user = await UserModel.findOne({username}).lean()
+        if(!user)return res.json({message : "Invalid"})
+        console.log(user)
+        if(await bcrypt.compare(password, user.password)){ // this compare the plainpassword that user sends with the hashed pass stored in db 
+            const token = jwt.sign({
+                id : user._id,
+                username : user.username
+            },JWT_SECRET)                   //creating a jwt token containing some data to be sent to client 
+            res.json({message: "cool", token : token})
+        }
+        else throw new Error
+    }
+    catch(err) {
+        res.json({message : "invalid"})
+    }
+})
+app.post('/api/register',async(req, res)=>{
+    const {username, password : plainPass} = req.body;
+    const password = await bcrypt.hash(plainPass,10)
+    try{
+        const response = await UserModel.create({
+            username : username,
+            password : password
+        })
+        console.log(response)
+        res.json({message: "cool"})
+    }
+    catch(e){
+        console.log(e)
+    }
+})
 mongoose
 	.connect(CONNECTION_URL,{
 		useNewUrlParser: true,
