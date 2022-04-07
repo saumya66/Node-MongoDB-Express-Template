@@ -5,13 +5,22 @@
   import APIError from '../utils/APIError.js';
   import bcrypt from 'bcryptjs';
   
+  const createNewUser = async(user)=>{
+    const oldUser =await UserModel.findOne({ email:user.email.toLowerCase() });
+    if(oldUser)
+      throw new APIError(httpStatus.BAD_REQUEST,"Email already exists.")
+    const newUser = await UserModel.create(user);
+    if(!newUser)
+      throw new APIError(httpStatus.BAD_REQUEST,"Oops...seems our server needed a break!")
+    return newUser;
+  }
   const fetchUserFromEmailAndPassword = async ({ email, password }) => {
     const user = await UserModel.findOne({
       email: email.toLowerCase(),
     })
       .lean();
   
-    if (!user || user.membershipHalted)
+    if (!user)
       throw new APIError(httpStatus.BAD_REQUEST, 'invalid credentials');
   
     let passwordMatches = await bcrypt.compare(password, user.password);
@@ -68,8 +77,7 @@
         password: newHash,
       },
       {
-        new: true,
-        select: 'name email',
+        new: true,     
       }
     );
 
@@ -83,5 +91,6 @@
     fetchUserFromAuthData,
     verifyCurrentPassword,
     updatePassword,
+    createNewUser
   };
   

@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 
 const refreshTokenSchema = new mongoose.Schema({
   userRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
+    ref: 'users',                      //The $ref field holds the name of the collection where the referenced document resides.
     required: true,
     index: true,
   },
@@ -16,13 +16,6 @@ const refreshTokenSchema = new mongoose.Schema({
     type: String,
     required: true,
     index: true,
-  },
-  platform: {
-    type: String,
-    required: true,
-  },
-  fcmToken: {
-    type: String,
   },
 });
 

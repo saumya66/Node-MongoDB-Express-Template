@@ -7,21 +7,21 @@ import httpStatus from 'http-status';
 
 import APIError from '../utils/APIError.js';
 
-const generateToken = async (userId, loginTime, expires, type, platform) => {
+const generateToken = async (userId, loginTime, expires, type) => {
   const payload = {
     userId,
     loginTime: new Date(loginTime.valueOf()),
     exp: expires.unix(),
     type,
-    platform,
-  };
-  let token = await sign(payload, process.env.JWT_SECRET);
-  return token;
+   };
+   let token = await sign(payload, process.env.JWT_SECRET);
+   return token;
 };
 
-const saveRefreshToken = async (userId, loginTime, token, platform) => {
+const saveRefreshToken = async (userId, loginTime, token) => {
+  // console.log(userId, new Date(loginTime.valueOf()), token);
   await RefreshTokenModel.findOneAndUpdate(
-    { userRef: userId, platform: platform },
+    { userRef: userId },
     {
       loginTime: new Date(loginTime.valueOf()),
       token: token,
@@ -29,36 +29,27 @@ const saveRefreshToken = async (userId, loginTime, token, platform) => {
     {
       upsert: true,
     }
-  );
-};
-
-const updateFcmToken = async (userId, fcmToken) => {
-  await RefreshTokenModel.findOneAndUpdate(
-    { userRef: userId, platform: 'mobile' },
-    {
-      fcmToken: fcmToken,
-    }
-  );
+    );
 };
 
 const clearRefreshToken = async (token) => {
   await RefreshTokenModel.findOneAndDelete({ token: token });
 };
 
-const generateAuthTokens = async (user, platform) => {
+const generateAuthTokens = async (user) => {
   const loginTime = moment();
   let accessTokenExpiresAt = loginTime
-    .clone()
-    .add(process.env.ACCESS_TOKEN_EXPIRATION_MINUTES, 'minutes');
-
+  .clone()
+  .add(process.env.ACCESS_TOKEN_EXPIRATION_MINUTES, 'minutes');
+  
+  console.log("dd",loginTime)
   const accessToken = await generateToken(
     user._id,
     loginTime,
     accessTokenExpiresAt,
     tokenTypes.ACCESS,
-    platform
-  );
-
+    );
+    
   let refreshTokenExpiresAt = loginTime
     .clone()
     .add(process.env.REFRESH_TOKEN_EXPIRATION_DAYS, 'days');
@@ -68,11 +59,10 @@ const generateAuthTokens = async (user, platform) => {
     loginTime,
     refreshTokenExpiresAt,
     tokenTypes.REFRESH,
-    platform
   );
-
-  await saveRefreshToken(user._id, loginTime, refreshToken, platform);
-
+ 
+  await saveRefreshToken(user._id, loginTime, refreshToken);
+  
   return {
     accessToken,
     refreshToken,
@@ -118,5 +108,4 @@ export {
   clearRefreshToken,
   verifyRefreshToken,
   generateAccessTokenFromRefreshTokenPayload,
-  updateFcmToken,
-};
+ };

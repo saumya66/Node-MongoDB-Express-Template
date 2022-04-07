@@ -21,8 +21,8 @@ router
   .post(trimRequest.all, validate(schemas.refreshTokenSchema), controller.refreshToken);
 
 router
-  .route('/init')
-  .post(trimRequest.all, validate(schemas.initSchema), isActiveUser, controller.init);
+  .route('/register')
+  .post(trimRequest.all, validate(schemas.registerSchema), controller.register);
 
 router
   .route('/update-password')

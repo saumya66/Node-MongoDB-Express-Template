@@ -1,19 +1,35 @@
+import bcryptjs from 'bcryptjs';
 import {
     fetchUserFromAuthData,
     fetchUserFromEmailAndPassword,
     updatePassword,
     verifyCurrentPassword,
     verifyUserFromRefreshTokenPayload,
+    createNewUser
   } from '../services/authService.js';
   import {
     generateAuthTokens,
     clearRefreshToken,
     verifyRefreshToken,
     generateAccessTokenFromRefreshTokenPayload,
-    updateFcmToken,
   } from '../services/tokenService.js';
   
   import passwordSchema from '../utils/passwordStrengthValidation.js';
+   
+  const register = async (req, res, next) => {
+    const {email, password} = req.body
+    try {
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    const newUser = await createNewUser({
+      email : email,
+      password : hashedPassword
+    });
+    const tokens = await generateAuthTokens(newUser._id)
+    res.json({user : newUser,tokens});
+    } catch (error) {
+      next(error);
+    }
+  };
   
    const login = async (req, res, next) => {
     try {
@@ -64,20 +80,6 @@ import {
     }
   };
   
-  const init = async (req, res, next) => {
-    try {
-      if (req.body.fcmToken)
-        await updateFcmToken(req.authData.userId, req.body.fcmToken);
-      const user = await fetchUserFromAuthData(req.authData);
-  
-      res.json({
-        user,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-  
    const resetPassword = async (req, res, next) => {
     try {
       await verifyCurrentPassword(req.authData.userId, req.body.password);
@@ -91,5 +93,5 @@ import {
   
 
 export default { 
-  login, logout, refreshToken, init, resetPassword
+  login, logout, refreshToken,  resetPassword, register
 }

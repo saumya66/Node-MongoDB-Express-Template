@@ -22,9 +22,18 @@ const schemas = {
     }),
   }),
 
-  initSchema: yup.object({
+  registerSchema: yup.object({
     body: yup.object({
-      fcmToken: yup.string().required(),
+      email: yup.string().required(),
+      password: yup.string()
+      .required()
+      .min(8, 'Must be 8 characters or more')
+      .max(128, 'Must be 128 characters max')
+      .test(
+        'is-strong',
+        'New password must contain 1 lowercase, 1 uppercase, 1 number, 1 special character, no spaces',
+        (value) => passwordSchema.validate(value)
+      ),
     }),
   }),
 

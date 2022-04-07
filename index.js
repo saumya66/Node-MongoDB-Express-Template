@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 // Exit on error
 mongoose.connection.on('error', (err) => {
-    logger(`MongoDB connection error: ${err}`);
+    logger.error(`MongoDB connection error: ${err}`);
     process.exit(1);
 });
   
@@ -22,7 +22,7 @@ if (process.env.NODE_ENV !== 'production') {
 } 
 
 let server;
-mongoose.connect(CONNECTION_URL,{useNewUrlParser: true,useUnifiedTopology: true,}).then(()=>{
+mongoose.connect(CONNECTION_URL,{useNewUrlParser: true,useUnifiedTopology: true}).then(()=>{
     logger.info('Connected to MongoDB');
     server = app.listen(PORT, () => {
         logger.info(`Listening to port ${PORT}`);
