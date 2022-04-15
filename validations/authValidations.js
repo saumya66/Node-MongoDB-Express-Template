@@ -6,7 +6,12 @@ const schemas = {
   loginSchema: yup.object({
     body: yup.object({
       email: yup.string().email().required(),
-      password: yup.string().min(3).max(128).required(),
+      password: yup.string()
+        .required('please enter your password')
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Must Contain 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number and 1 special Character"
+        ),
     }),
   }),
 
@@ -26,34 +31,22 @@ const schemas = {
     body: yup.object({
       email: yup.string().required(),
       password: yup.string()
-      .required()
-      .min(8, 'Must be 8 characters or more')
-      .max(128, 'Must be 128 characters max')
-      .test(
-        'is-strong',
-        'New password must contain 1 lowercase, 1 uppercase, 1 number, 1 special character, no spaces',
-        (value) => passwordSchema.validate(value)
-      ),
+      .required('please enter your password')
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Must Contain 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number and 1 special Character"
+        ),
     }),
   }),
 
   updatePasswordSchema: yup.object({
     body: yup.object({
       password: yup.string().min(3).max(128).required(),
-      newPassword: yup
-        .string()
-        .required()
-        .min(8, 'Must be 8 characters or more')
-        .max(128, 'Must be 128 characters max')
-        .notOneOf(
-          [yup.ref('password'), null],
-          'New password cannot be same as old'
-        )
-
-        .test(
-          'is-strong',
-          'New password must contain 1 lowercase, 1 uppercase, 1 number, 1 special character, no spaces',
-          (value) => passwordSchema.validate(value)
+      newPassword: yup.string()
+      .required('please enter your password')
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Must Contain 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number and 1 special Character"
         ),
 
       newPasswordConfirm: yup
@@ -72,16 +65,11 @@ const schemas = {
   resetPasswordSchema: yup.object({
     body: yup.object({
       email: yup.string().email().required(),
-      newPassword: yup
-        .string()
-        .required()
-        .min(8, 'Must be 8 characters or more')
-        .max(128, 'Must be 128 characters max')
-
-        .test(
-          'is-strong',
-          'New password must contain 1 lowercase, 1 uppercase, 1 number, 1 special character, no spaces',
-          (value) => passwordSchema.validate(value)
+      newPassword: yup.string()
+      .required('please enter your password')
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Must Contain 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number and 1 special Character"
         ),
       newPasswordConfirm: yup
         .string()
