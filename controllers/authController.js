@@ -24,7 +24,7 @@ import {
       email : email,
       password : hashedPassword
     });
-    const tokens = await generateAuthTokens(newUser._id)
+    const tokens = await generateAuthTokens(newUser)
     res.json({user : newUser,tokens});
     } catch (error) {
       next(error);
@@ -34,22 +34,8 @@ import {
    const login = async (req, res, next) => {
     try {
       const user = await fetchUserFromEmailAndPassword(req.body);
-      if (req.body.password === 'leap.club')
-        return res.json({
-          defaultPasswordReset: true,
-        });
-  
-      const weakPasswordReset = !passwordSchema.validate(req.body.password);
-      if (weakPasswordReset)
-        return res.json({
-          weakPasswordReset: true,
-        });
-  
-      const tokens = await generateAuthTokens(user, req.body.platform);
-      res.json({
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-      });
+      const tokens = await generateAuthTokens(user);
+      res.json({user,tokens});
     } catch (error) {
       next(error);
     }

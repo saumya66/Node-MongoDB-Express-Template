@@ -19,7 +19,6 @@ const isActiveUser = async (req, res, next) => {
 
     let userExists = await UserModel.exists({
       _id: tokenPayload.userId,
-      membershipHalted: false,
     });
 
     if (!userExists)
@@ -27,7 +26,6 @@ const isActiveUser = async (req, res, next) => {
 
     let refreshTokenExists = await RefreshTokenModel.exists({
       userRef: tokenPayload.userId,
-      platform: tokenPayload.platform,
       loginTime: tokenPayload.loginTime,
     });
 

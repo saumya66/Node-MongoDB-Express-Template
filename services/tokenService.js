@@ -42,7 +42,6 @@ const generateAuthTokens = async (user) => {
   .clone()
   .add(process.env.ACCESS_TOKEN_EXPIRATION_MINUTES, 'minutes');
   
-  console.log("dd",loginTime)
   const accessToken = await generateToken(
     user._id,
     loginTime,
