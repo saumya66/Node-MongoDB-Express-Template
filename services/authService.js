@@ -18,7 +18,7 @@
     const user = await UserModel.findOne({
       email: email.toLowerCase(),
     })
-      .lean();
+    .lean();
   
     if (!user)
       throw new APIError(httpStatus.BAD_REQUEST, 'invalid credentials');
