@@ -12,7 +12,8 @@ import {
     verifyRefreshToken,
     generateAccessTokenFromRefreshTokenPayload,
   } from '../services/tokenService.js';
-  
+import { OAuth2Client } from 'google-auth-library';
+
    
   const register = async (req, res, next) => {
     const {email, password} = req.body
@@ -74,8 +75,29 @@ import {
       next(error);
     }
   };
-  
+
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
+  const googleUserRegister = async (req, res, next) => {
+    try {
+      const { token }  = req.body
+      const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.CLIENT_ID
+      });
+      const { name, email, picture } = ticket.getPayload();   
+      const newUser = await createNewUser({
+        email : email,
+        name : name,
+        image : picture 
+      });
+      const tokens = await generateAuthTokens(newUser)
+    res.json({user : newUser,tokens});
+  } catch (error) {
+      next(error);
+  }
+  }
 
 export default { 
-  login, logout, refreshToken,  resetPassword, register
+  login, logout, refreshToken,  resetPassword, register,googleUserRegister
 }

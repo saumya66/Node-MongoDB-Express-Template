@@ -5,7 +5,6 @@ import controller from '../controllers/authController.js';
 import trimRequest from 'trim-request';
 
 import schemas from '../validations/authValidations.js';
-import passport from 'passport';
 
 const router = express.Router();
 
@@ -26,26 +25,20 @@ router
   .post(trimRequest.all, validate(schemas.registerSchema), controller.register);
 
 router
-  .route('/update-password')
+  .route('/reset-password')
   .post(
     trimRequest.all,
-    validate(schemas.updatePasswordSchema),
+    validate(schemas.resetPasswordSchema),
     isActiveUser,
     controller.resetPassword
   );
 
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile','email'] }));
-
-router.get('/google/callback', 
-  passport.authenticate('google', { 
-    failureRedirect: "/",
-    successRedirect: "/",
-    failureFlash: true,
-    successFlash: "Successfully logged in!", 
-  }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/');
-  });
+router
+  .route("/google")
+  .post(
+    trimRequest.all,
+    validate(schemas.googleUserSchema),
+    controller.googleUserRegister
+  )
+ 
 export default router;
