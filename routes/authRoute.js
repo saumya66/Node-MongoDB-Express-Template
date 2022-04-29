@@ -34,11 +34,19 @@ router
   );
 
 router
-  .route("/google")
+  .route("/google-register")
   .post(
     trimRequest.all,
     validate(schemas.googleUserSchema),
     controller.googleUserRegister
+  )
+
+router
+  .route("/google-login")
+  .post(
+    trimRequest.all,
+    validate(schemas.googleUserSchema),
+    controller.googleUserLogin
   )
  
 export default router;

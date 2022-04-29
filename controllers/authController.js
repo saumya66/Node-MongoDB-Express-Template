@@ -4,7 +4,8 @@ import {
     updatePassword,
     verifyCurrentPassword,
     verifyUserFromRefreshTokenPayload,
-    createNewUser
+    createNewUser,
+    fetchUserFromEmail
   } from '../services/authService.js';
   import {
     generateAuthTokens,
@@ -21,7 +22,8 @@ import { OAuth2Client } from 'google-auth-library';
     const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = await createNewUser({
       email : email,
-      password : hashedPassword
+      password : hashedPassword,
+      source : "email"
     });
     const tokens = await generateAuthTokens(newUser)
     res.json({user : newUser,tokens});
@@ -89,7 +91,8 @@ import { OAuth2Client } from 'google-auth-library';
       const newUser = await createNewUser({
         email : email,
         name : name,
-        image : picture 
+        image : picture,
+        source : "google"
       });
       const tokens = await generateAuthTokens(newUser)
     res.json({user : newUser,tokens});
@@ -97,7 +100,23 @@ import { OAuth2Client } from 'google-auth-library';
       next(error);
   }
   }
+  const googleUserLogin = async (req, res, next) => {
+    try {
+      console.log("dd")
+      const { token }  = req.body
+      const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.CLIENT_ID
+      });
+      const { email} = ticket.getPayload();   
+      const user = await fetchUserFromEmail({email});
+      const tokens = await generateAuthTokens(user);
+      res.json({user,tokens});
+      } catch (error) {
+        next(error);
+      }
+  }
 
 export default { 
-  login, logout, refreshToken,  resetPassword, register,googleUserRegister
+  login, logout, refreshToken,  resetPassword, register,googleUserRegister,googleUserLogin
 }

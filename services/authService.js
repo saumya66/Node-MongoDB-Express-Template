@@ -41,6 +41,17 @@
   
     return user;
   };
+  const fetchUserFromEmail= async ({ email }) => {
+    const user = await UserModel.findOne({
+      email: email.toLowerCase(),
+    })
+    .lean();
+  
+    if (!user)
+      throw new APIError(httpStatus.BAD_REQUEST, 'please sign up - this email does not exist');
+  
+    return user;
+  };
   
   const verifyUserFromRefreshTokenPayload = async ({ userId }) => {
     const userExists = await UserModel.exists({
@@ -97,6 +108,7 @@
 
   export {
     fetchUserFromEmailAndPassword,
+    fetchUserFromEmail,
     verifyUserFromRefreshTokenPayload,
     fetchUserFromAuthData,
     verifyCurrentPassword,
