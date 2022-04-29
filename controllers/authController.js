@@ -1,6 +1,5 @@
 import bcryptjs from 'bcryptjs';
 import {
-    fetchUserFromAuthData,
     fetchUserFromEmailAndPassword,
     updatePassword,
     verifyCurrentPassword,
@@ -14,7 +13,6 @@ import {
     generateAccessTokenFromRefreshTokenPayload,
   } from '../services/tokenService.js';
   
-  import passwordSchema from '../utils/passwordStrengthValidation.js';
    
   const register = async (req, res, next) => {
     const {email, password} = req.body

@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import routes from './routes/index.js';
 import error from './middlewares/error.js';
+import passport from 'passport';
 
 const app= express();
 
@@ -44,6 +45,9 @@ app.use(error.notFound);
 
 // error handler, send stacktrace only during development
 app.use(error.handler);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 export default app;
 

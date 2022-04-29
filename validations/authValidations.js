@@ -56,12 +56,6 @@ const schemas = {
     }),
   }),
 
-  forgotPasswordSchema: yup.object({
-    body: yup.object({
-      email: yup.string().email().required(),
-    }),
-  }),
-
   resetPasswordSchema: yup.object({
     body: yup.object({
       email: yup.string().email().required(),

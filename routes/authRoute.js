@@ -5,6 +5,7 @@ import controller from '../controllers/authController.js';
 import trimRequest from 'trim-request';
 
 import schemas from '../validations/authValidations.js';
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -33,4 +34,18 @@ router
     controller.resetPassword
   );
 
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile','email'] }));
+
+router.get('/google/callback', 
+  passport.authenticate('google', { 
+    failureRedirect: "/",
+    successRedirect: "/",
+    failureFlash: true,
+    successFlash: "Successfully logged in!", 
+  }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
 export default router;

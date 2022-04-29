@@ -19,7 +19,6 @@ const generateToken = async (userId, loginTime, expires, type) => {
 };
 
 const saveRefreshToken = async (userId, loginTime, token) => {
-  // console.log(userId, new Date(loginTime.valueOf()), token);
   await RefreshTokenModel.findOneAndUpdate(
     { userRef: userId },
     {
